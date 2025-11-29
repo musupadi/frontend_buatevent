@@ -6,6 +6,7 @@ import {
 } from 'react';
 
 import Image from 'next/image';
+import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import {
   FiFilter,
@@ -52,7 +53,7 @@ export default function HotelsPage() {
 
   // Fetch hotels from API
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/hotels')
+    fetch(API_ENDPOINTS.HOTELS)
       .then(res => res.json())
       .then(data => {
         console.log('Hotels data:', data)

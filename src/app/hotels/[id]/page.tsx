@@ -6,6 +6,7 @@ import {
 } from 'react';
 
 import Image from 'next/image';
+import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import {
   useParams,
@@ -68,8 +69,8 @@ export default function HotelDetailPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`http://localhost:8080/api/v1/hotels/${hotelId}`).then((res) => res.json()),
-      fetch(`http://localhost:8080/api/v1/hotels/${hotelId}/room-types`).then((res) => res.json())
+      fetch(API_ENDPOINTS.HOTEL_BY_ID(hotelId)).then((res) => res.json()),
+      fetch(API_ENDPOINTS.HOTEL_ROOM_TYPES(hotelId)).then((res) => res.json())
     ])
       .then(([hotelData, roomTypesData]) => {
         console.log('Hotel:', hotelData)

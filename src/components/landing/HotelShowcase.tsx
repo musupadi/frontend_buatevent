@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -24,7 +25,7 @@ export default function HotelShowcase() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/hotels')
+    fetch(API_ENDPOINTS.HOTELS)
       .then(res => res.json())
       .then(data => {
         setHotels(data.hotels?.slice(0, 6) || [])

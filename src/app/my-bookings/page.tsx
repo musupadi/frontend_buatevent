@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -68,7 +69,7 @@ export default function MyBookingsPage() {
     }
 
     // Fetch user's reservations
-    fetch('http://localhost:8080/api/v1/reservations/user/my-bookings', {
+    fetch(API_ENDPOINTS.MY_BOOKINGS, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

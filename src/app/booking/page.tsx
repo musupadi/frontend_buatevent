@@ -9,6 +9,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
+import { API_ENDPOINTS } from '@/lib/api';
 import {
   FiAlertCircle,
   FiCalendar,
@@ -109,8 +110,8 @@ export default function BookingPage() {
     if (!user) return
 
     Promise.all([
-      fetch(`http://localhost:8080/api/v1/hotels/${hotelId}`).then((res) => res.json()),
-      fetch(`http://localhost:8080/api/v1/hotels/${hotelId}/room-types`).then((res) => res.json()),
+      fetch(API_ENDPOINTS.HOTEL_BY_ID(hotelId)).then((res) => res.json()),
+      fetch(API_ENDPOINTS.HOTEL_ROOM_TYPES(hotelId)).then((res) => res.json()),
     ])
       .then(([hotelData, roomTypesData]) => {
         setHotel(hotelData.hotel || hotelData)
@@ -144,7 +145,7 @@ export default function BookingPage() {
 
     setCalculatingPrice(true)
     try {
-      const response = await fetch('http://localhost:8080/api/v1/calculate-price', {
+      const response = await fetch(API_ENDPOINTS.CALCULATE_PRICE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -183,7 +184,7 @@ export default function BookingPage() {
         headers['Authorization'] = `Bearer ${token}`
       }
 
-      const response = await fetch('http://localhost:8080/api/v1/reservations', {
+      const response = await fetch(API_ENDPOINTS.RESERVATIONS, {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({

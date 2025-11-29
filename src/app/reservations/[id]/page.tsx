@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -68,7 +69,7 @@ export default function ReservationDetailPage() {
   useEffect(() => {
     if (!reservationId) return
 
-    fetch(`http://localhost:8080/api/v1/reservations/${reservationId}`)
+    fetch(API_ENDPOINTS.RESERVATION_BY_ID(reservationId))
       .then((res) => res.json())
       .then((data) => {
         if (data.reservation) {

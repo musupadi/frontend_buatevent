@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { API_ENDPOINTS } from '@/lib/api';
 
 import {
   FiActivity,
@@ -47,8 +48,8 @@ export default function BlockchainPage() {
   const fetchBlockchainData = async () => {
     try {
       const [statsRes, blocksRes] = await Promise.all([
-        fetch('http://localhost:8080/api/v1/blockchain/stats'),
-        fetch('http://localhost:8080/api/v1/blockchain/blocks')
+        fetch(API_ENDPOINTS.BLOCKCHAIN_STATS),
+        fetch(API_ENDPOINTS.BLOCKCHAIN_BLOCKS)
       ])
 
       const statsData = await statsRes.json()
