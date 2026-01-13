@@ -4,7 +4,6 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { API_ENDPOINTS } from '@/lib/api';
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -24,6 +23,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Reservation {
   id: number

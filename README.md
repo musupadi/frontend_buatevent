@@ -1,4 +1,4 @@
-# HotelChain - Blockchain Hotel Reservation Frontend
+# BuatEvent - Blockchain Hotel Reservation Frontend
 
 Modern, SEO-optimized landing page built with **Next.js 14**, **TypeScript**, and **Tailwind CSS**. Powered by Hyperledger Fabric blockchain.
 
@@ -148,7 +148,7 @@ Using **Framer Motion** for smooth animations:
 ### Metadata (layout.tsx)
 ```typescript
 export const metadata = {
-  title: 'HotelChain - Blockchain Hotel Reservation',
+  title: 'BuatEvent - Blockchain Hotel Reservation',
   description: 'Book meeting venues with blockchain transparency...',
   keywords: 'hotel, blockchain, reservation, Hyperledger Fabric...',
   openGraph: { ... },  // Social sharing
@@ -285,12 +285,12 @@ taskkill /PID <PID> /F
 
 ## 📄 License
 
-This project is part of the HotelChain blockchain reservation system.
+This project is part of the BuatEvent blockchain reservation system.
 
 ## 👥 Support
 
 For questions or issues:
-- Email: info@hotelchain.com
+- Email: info@BuatEvent.com
 - Phone: +62 812 3456 7890
 
 ---

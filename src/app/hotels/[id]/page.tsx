@@ -6,7 +6,6 @@ import {
 } from 'react';
 
 import Image from 'next/image';
-import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import {
   useParams,
@@ -23,6 +22,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Hotel {
   id: number
@@ -239,7 +239,7 @@ export default function HotelDetailPage() {
 
           {/* Features */}
           <div className="bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl shadow-md p-8 text-white">
-            <h2 className="text-2xl font-bold mb-6">Why Book with HotelChain?</h2>
+            <h2 className="text-2xl font-bold mb-6">Why Book with BuatEvent?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <h3 className="font-bold text-lg mb-2">🔒 Blockchain Security</h3>

@@ -6,10 +6,10 @@ import {
 } from 'react';
 
 import Image from 'next/image';
-import { API_ENDPOINTS } from '@/lib/api';
 import Link from 'next/link';
 import {
   FiFilter,
+  FiLogOut,
   FiMapPin,
   FiSearch,
   FiStar,
@@ -17,6 +17,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Hotel {
   id: number
@@ -35,6 +36,20 @@ export default function HotelsPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('All')
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    window.location.href = '/login'
+  }
 
   // Helper function to get safe image URL
   const getSafeImageUrl = (url: string | null | undefined): string => {
@@ -100,10 +115,23 @@ export default function HotelsPage() {
         {/* Header Section */}
         <div className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Hotels</h1>
-            <p className="text-xl text-white/90">
-              Discover {hotels.length} premium meeting venues across Indonesia
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Hotels</h1>
+                <p className="text-xl text-white/90">
+                  Discover {hotels.length} premium meeting venues across Indonesia
+                </p>
+              </div>
+              {user && (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg transition-colors"
+                >
+                  <FiLogOut size={20} />
+                  <span>Logout</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

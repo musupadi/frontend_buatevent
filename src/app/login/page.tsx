@@ -48,8 +48,12 @@ export default function LoginPage() {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         
-        // Redirect
-        router.push(redirectTo)
+        // Redirect based on user role
+        if (data.user.role === 'hotel_super_admin' || data.user.role === 'hotel_admin') {
+          router.push('/hotel-admin')
+        } else {
+          router.push(redirectTo)
+        }
       } else {
         setError(data.error || 'Login failed')
       }

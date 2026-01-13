@@ -4,12 +4,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { API_ENDPOINTS } from '@/lib/api';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FiMapPin } from 'react-icons/fi';
+
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Hotel {
   id: number

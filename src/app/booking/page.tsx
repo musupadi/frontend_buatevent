@@ -9,7 +9,6 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import { API_ENDPOINTS } from '@/lib/api';
 import {
   FiAlertCircle,
   FiCalendar,
@@ -21,6 +20,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Hotel {
   id: number
@@ -38,6 +38,16 @@ interface RoomType {
   price_per_person: number
   min_capacity: number
   max_capacity: number
+}
+
+interface HotelRoom {
+  id: number
+  hotel_id: number
+  room_type_id: number
+  room_number: string
+  floor: number
+  is_blockchain_enabled: boolean
+  status: string
 }
 
 interface PriceCalculation {
@@ -73,6 +83,11 @@ export default function BookingPage() {
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerRef, setCustomerRef] = useState('')
+
+  // Room selection state - NEW!
+  const [availableRooms, setAvailableRooms] = useState<HotelRoom[]>([])
+  const [selectedRoomIds, setSelectedRoomIds] = useState<number[]>([])
+  const [loadingRooms, setLoadingRooms] = useState(false)
 
   // Price calculation
   const [priceCalculation, setPriceCalculation] = useState<PriceCalculation | null>(null)
@@ -134,6 +149,46 @@ export default function BookingPage() {
     }
   }, [roomType, guestCount, checkIn, checkOut])
 
+  // Load available rooms when dates are selected - NEW!
+  useEffect(() => {
+    if (hotelId && roomTypeId && checkIn && checkOut) {
+      loadAvailableRooms()
+    } else {
+      setAvailableRooms([])
+      setSelectedRoomIds([])
+    }
+  }, [hotelId, roomTypeId, checkIn, checkOut])
+
+  const loadAvailableRooms = async () => {
+    if (!hotelId || !roomTypeId || !checkIn || !checkOut) return
+
+    setLoadingRooms(true)
+    try {
+      const response = await fetch(API_ENDPOINTS.AVAILABLE_ROOMS(hotelId, roomTypeId, checkIn, checkOut))
+      if (response.ok) {
+        const data = await response.json()
+        setAvailableRooms(data.available_rooms || [])
+      } else {
+        setAvailableRooms([])
+      }
+    } catch (err) {
+      console.error('Error loading available rooms:', err)
+      setAvailableRooms([])
+    } finally {
+      setLoadingRooms(false)
+    }
+  }
+
+  const handleRoomToggle = (roomId: number) => {
+    setSelectedRoomIds(prev => {
+      if (prev.includes(roomId)) {
+        return prev.filter(id => id !== roomId)
+      } else {
+        return [...prev, roomId]
+      }
+    })
+  }
+
   const calculatePrice = async () => {
     if (!roomType || !guestCount || !checkIn || !checkOut) return
 
@@ -170,6 +225,34 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Validate dates
+    if (!checkIn || !checkOut) {
+      setError('Please select check-in and check-out dates')
+      return
+    }
+
+    const checkInDate = new Date(checkIn)
+    const checkOutDate = new Date(checkOut)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (checkInDate < today) {
+      setError('Check-in date cannot be in the past')
+      return
+    }
+
+    if (checkOutDate <= checkInDate) {
+      setError('Check-out date must be after check-in date')
+      return
+    }
+
+    // Validate room selection
+    if (selectedRoomIds.length === 0) {
+      setError('Please select at least one room')
+      return
+    }
+
     setSubmitting(true)
 
     try {
@@ -200,6 +283,7 @@ export default function BookingPage() {
           customer_email: customerEmail,
           customer_phone: customerPhone,
           customer_ref: customerRef,
+          selected_room_ids: selectedRoomIds, // NEW: Send selected room IDs
         }),
       })
 
@@ -385,6 +469,73 @@ export default function BookingPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Room Selection - NEW! */}
+                {checkIn && checkOut && (
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">Select Rooms</h2>
+                    {loadingRooms ? (
+                      <div className="text-center py-8">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                        <p className="mt-2 text-gray-600">Loading available rooms...</p>
+                      </div>
+                    ) : availableRooms.length === 0 ? (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <FiAlertCircle className="inline text-yellow-600 mr-2" />
+                        <span className="text-yellow-800">
+                          No rooms available for selected dates. Please choose different dates.
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                          <p className="text-sm text-blue-800">
+                            <strong>{availableRooms.length}</strong> rooms available. 
+                            Select rooms for your {guestCount || '___'} guests.
+                            {selectedRoomIds.length > 0 && (
+                              <span className="ml-2">
+                                ({selectedRoomIds.length} room{selectedRoomIds.length > 1 ? 's' : ''} selected)
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto p-2">
+                          {availableRooms.map((room) => (
+                            <button
+                              key={room.id}
+                              type="button"
+                              onClick={() => handleRoomToggle(room.id)}
+                              className={`p-4 rounded-lg border-2 transition-all ${
+                                selectedRoomIds.includes(room.id)
+                                  ? 'border-primary-600 bg-primary-50 shadow-md'
+                                  : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              <div className="text-center">
+                                <div className={`text-lg font-bold ${
+                                  selectedRoomIds.includes(room.id) ? 'text-primary-600' : 'text-gray-900'
+                                }`}>
+                                  {room.room_number}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  Floor {room.floor}
+                                </div>
+                                {selectedRoomIds.includes(room.id) && (
+                                  <FiCheck className="mx-auto mt-2 text-primary-600" size={20} />
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        {selectedRoomIds.length === 0 && (
+                          <p className="text-sm text-red-600 mt-2">
+                            * Please select at least one room to proceed
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
 
                 {/* Customer Details */}
                 <div>

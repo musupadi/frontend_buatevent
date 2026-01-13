@@ -4,7 +4,6 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { API_ENDPOINTS } from '@/lib/api';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -22,6 +21,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface Reservation {
   id: number
@@ -37,6 +37,7 @@ interface Reservation {
   total_price: number
   currency: string
   status: string
+  payment_status: string
   created_at: string
   updated_at: string
   hotel: {
@@ -298,10 +299,23 @@ export default function MyBookingsPage() {
                       >
                         View Details
                       </Link>
-                      {reservation.status === 'PENDING' && (
-                        <button className="btn-secondary flex-1">
-                          Cancel Booking
-                        </button>
+                      {reservation.status === 'PENDING' && reservation.payment_status === 'unpaid' && (
+                        <>
+                          <Link
+                            href={`/payment?id=${reservation.reservation_id}`}
+                            className="btn-primary text-center flex-1 bg-green-600 hover:bg-green-700"
+                          >
+                            💳 Pay Now
+                          </Link>
+                          <button className="btn-secondary flex-1">
+                            Cancel Booking
+                          </button>
+                        </>
+                      )}
+                      {reservation.status === 'PENDING' && reservation.payment_status === 'paid' && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-center">
+                          <span className="text-green-800 font-semibold text-sm">✓ Payment Completed</span>
+                        </div>
                       )}
                     </div>
                   </div>

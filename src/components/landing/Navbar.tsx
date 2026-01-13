@@ -18,7 +18,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 
-export default function Navbar() {
+function Navbar() {
   const router = useRouter()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
@@ -66,12 +66,12 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">H</span>
+              <span className="text-white font-bold text-xl">BE</span>
             </div>
             <span className={`text-2xl font-bold ${
               !isLandingPage || isScrolled ? 'text-gray-900' : 'text-white'
             }`}>
-              HotelChain
+              BuatEvent
             </span>
           </Link>
 
@@ -263,3 +263,5 @@ export default function Navbar() {
     </nav>
   )
 }
+
+export default Navbar;

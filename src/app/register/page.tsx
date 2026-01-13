@@ -116,7 +116,28 @@ export default function RegisterPage() {
                 <FiCheckCircle className="text-white" size={32} />
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-              <p className="text-gray-600">Join HotelChain and start booking</p>
+              <p className="text-gray-600">Join BuatEvent and start booking</p>
+            </div>
+
+            {/* Registration Type Selection */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 mb-3">I want to register as:</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href="/register"
+                  className="flex items-center justify-center px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  <FiUser className="mr-2" />
+                  Customer
+                </Link>
+                <Link
+                  href="/register/hotel"
+                  className="flex items-center justify-center px-4 py-3 bg-white border-2 border-primary-600 text-primary-600 rounded-lg hover:bg-primary-50 transition-colors"
+                >
+                  <FiUser className="mr-2" />
+                  Hotel Owner
+                </Link>
+              </div>
             </div>
 
             {/* Error Alert */}

@@ -61,7 +61,7 @@ export default function Features() {
             viewport={{ once: true }}
             className="section-title"
           >
-            Why Choose HotelChain?
+            Why Choose BuatEvent?
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

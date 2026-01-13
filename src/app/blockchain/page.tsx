@@ -4,7 +4,6 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { API_ENDPOINTS } from '@/lib/api';
 
 import {
   FiActivity,
@@ -17,6 +16,7 @@ import {
 
 import Footer from '@/components/landing/Footer';
 import Navbar from '@/components/landing/Navbar';
+import { API_ENDPOINTS } from '@/lib/api';
 
 interface BlockchainStats {
   total_blocks: number
