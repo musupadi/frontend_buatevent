@@ -104,7 +104,7 @@ function Footer() {
               <li className="flex items-start space-x-3">
                 <FiPhone className="flex-shrink-0 mt-1" />
                 <span>+62 812 3456 7890</span>
-              </li>
+              </li> 
               <li className="flex items-start space-x-3">
                 <FiMapPin className="flex-shrink-0 mt-1" />
                 <span>Jakarta, Indonesia</span>

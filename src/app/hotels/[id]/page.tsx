@@ -171,7 +171,23 @@ export default function HotelDetailPage() {
 
           {/* Meeting Packages */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Meeting Packages</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">Meeting Packages</h2>
+              
+              <Link
+                href={`/booking/multi?hotel_id=${hotel.id}`}
+                className="btn-primary flex items-center space-x-2"
+              >
+                <FiCalendar />
+                <span>📦 Book Multiple Rooms</span>
+              </Link>
+            </div>
+            
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+              <p className="text-blue-700">
+                <strong>💡 Tip:</strong> Butuh kombinasi beberapa tipe room? Gunakan <strong>Multi-Room Booking</strong> untuk pilih beberapa room sekaligus dengan harga otomatis terhitung!
+              </p>
+            </div>
             
             {roomTypes.length === 0 ? (
               <div className="bg-white rounded-xl shadow-md p-12 text-center">
