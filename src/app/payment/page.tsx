@@ -5,13 +5,15 @@ import {
   useState,
 } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import {
   FiAlertCircle,
   FiCalendar,
   FiCheckCircle,
   FiCreditCard,
-  FiDollarSign,
   FiHome,
   FiInfo,
   FiMapPin,
@@ -42,6 +44,7 @@ interface Reservation {
   currency: string
   status: string
   payment_status: string
+  total_rooms?: number
   hotel: {
     id: number
     name: string
@@ -53,6 +56,15 @@ interface Reservation {
     type_name: string
     description: string
   }
+  room_reservations?: Array<{
+    room_id: number
+    room_number: string
+    floor: number
+    status: string
+    start_time?: string
+    end_time?: string
+    booking_duration_hours?: number
+  }>
 }
 
 export default function PaymentPage() {
@@ -248,6 +260,35 @@ export default function PaymentPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Rooms Booked */}
+                  {reservation.room_reservations && reservation.room_reservations.length > 0 && (
+                    <div className="border-t border-gray-200 pt-4">
+                      <div className="flex items-start space-x-3">
+                        <FiHome className="text-primary-600 flex-shrink-0 mt-1" size={20} />
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600 mb-2">Rooms Booked ({reservation.total_rooms || reservation.room_reservations.length})</p>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {reservation.room_reservations.map((room, idx) => (
+                              <div key={idx} className="bg-primary-50 rounded-lg px-3 py-2">
+                                <p className="text-xs text-gray-600">Floor {room.floor}</p>
+                                <p className="font-semibold text-primary-700">{room.room_number}</p>
+                                {/* Meeting room time info */}
+                                {room.start_time && room.end_time && (
+                                  <div className="mt-1 text-xs text-gray-600">
+                                    <p>🕐 {room.start_time} - {room.end_time}</p>
+                                    {room.booking_duration_hours && (
+                                      <p className="font-medium text-primary-600">{room.booking_duration_hours}h</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -374,6 +415,14 @@ export default function PaymentPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Number of guests:</span>
                     <span className="font-medium">{reservation.guest_count}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="font-medium">Rp {(reservation.total_price - 10000).toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm border-t border-gray-200 pt-3">
+                    <span className="text-gray-600">Service Fee:</span>
+                    <span className="font-medium text-green-600">Rp 10.000</span>
                   </div>
                   <div className="border-t border-gray-200 pt-3 mt-3">
                     <div className="flex justify-between items-center">

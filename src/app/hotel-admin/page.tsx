@@ -1050,9 +1050,10 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
     description: editingType?.description || '',
     price_per_person: editingType?.price_per_person || '',
     pricing_type: editingType?.pricing_type || 'per_night',
-    hourly_rate: editingType?.hourly_rate || '',
     half_day_rate: editingType?.half_day_rate || '',
     full_day_rate: editingType?.full_day_rate || '',
+    full_board_rate: editingType?.full_board_rate || '',
+    hourly_rate: editingType?.hourly_rate || '', // Keep for backward compatibility
     min_capacity: editingType?.min_capacity || '',
     max_capacity: editingType?.max_capacity || '',
     amenities: editingType?.amenities || '',
@@ -1085,9 +1086,9 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
           description: formData.description,
           price_per_person: formData.price_per_person ? parseFloat(formData.price_per_person as string) : 0,
           pricing_type: formData.pricing_type,
-          hourly_rate: formData.hourly_rate ? parseFloat(formData.hourly_rate as string) : null,
           half_day_rate: formData.half_day_rate ? parseFloat(formData.half_day_rate as string) : null,
           full_day_rate: formData.full_day_rate ? parseFloat(formData.full_day_rate as string) : null,
+          full_board_rate: formData.full_board_rate ? parseFloat(formData.full_board_rate as string) : null,
           min_capacity: parseInt(formData.min_capacity as string),
           max_capacity: parseInt(formData.max_capacity as string),
           amenities: formData.amenities,
@@ -1179,29 +1180,16 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
             onChange={(e) => setFormData({ ...formData, pricing_type: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 mb-4"
           >
-            <option value="per_hour">Per Hour</option>
-            <option value="half_day">Half Day (4 hours)</option>
-            <option value="full_day">Full Day (8 hours)</option>
+            <option value="half_day">Half Day (1x Coffee Break)</option>
+            <option value="full_day">Full Day (2x Coffee Break + 1x Meals)</option>
+            <option value="full_board">Full Board (2x Coffee Break + 2x Meals)</option>
           </select>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Hourly Rate
-              </label>
-              <input
-                type="number"
-                value={formData.hourly_rate}
-                onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                min="0"
-                step="0.01"
-                placeholder="e.g. 500000"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Half Day Rate (4h)
+                Half Day Rate
+                <span className="text-xs text-gray-500 block">1x Coffee Break</span>
               </label>
               <input
                 type="number"
@@ -1215,7 +1203,8 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Day Rate (8h)
+                Full Day Rate
+                <span className="text-xs text-gray-500 block">2x Coffee Break + 1x Meals</span>
               </label>
               <input
                 type="number"
@@ -1225,6 +1214,21 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
                 min="0"
                 step="0.01"
                 placeholder="e.g. 3000000"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Board Rate
+                <span className="text-xs text-gray-500 block">2x Coffee Break + 2x Meals</span>
+              </label>
+              <input
+                type="number"
+                value={formData.full_board_rate}
+                onChange={(e) => setFormData({ ...formData, full_board_rate: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 4500000"
               />
             </div>
           </div>
@@ -1282,7 +1286,7 @@ function RoomTypeForm({ hotelId, editingType, onSuccess, onCancel }: any) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Amenities
+          Facilities
         </label>
         <textarea
           value={formData.amenities}

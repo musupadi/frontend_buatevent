@@ -45,6 +45,7 @@ interface Reservation {
   status: string
   created_at: string
   updated_at: string
+  total_rooms?: number
   hotel: {
     id: number
     name: string
@@ -56,6 +57,15 @@ interface Reservation {
     type_name: string
     description: string
   }
+  room_reservations?: Array<{
+    room_id: number
+    room_number: string
+    floor: number
+    status: string
+    start_time?: string
+    end_time?: string
+    booking_duration_hours?: number
+  }>
 }
 
 export default function ReservationDetailPage() {
@@ -262,6 +272,42 @@ export default function ReservationDetailPage() {
               </div>
             )}
           </div>
+
+          {/* Booked Rooms */}
+          {reservation.room_reservations && reservation.room_reservations.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Booked Rooms ({reservation.total_rooms || reservation.room_reservations.length})
+              </h2>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {reservation.room_reservations.map((room, idx) => (
+                  <div key={idx} className="border-2 border-primary-200 bg-primary-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-gray-600">Floor {room.floor}</span>
+                      <span className="text-xs font-medium text-green-600">{room.status}</span>
+                    </div>
+                    <p className="font-bold text-primary-700 text-lg mb-1">{room.room_number}</p>
+                    
+                    {/* Meeting Room Time Info */}
+                    {room.start_time && room.end_time && (
+                      <div className="mt-2 pt-2 border-t border-primary-200">
+                        <p className="text-xs text-gray-600 mb-1">⏰ Booking Time:</p>
+                        <p className="text-xs font-semibold text-primary-700">
+                          {room.start_time} - {room.end_time}
+                        </p>
+                        {room.booking_duration_hours && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Duration: {room.booking_duration_hours} hours
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Contact Information */}
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">

@@ -14,10 +14,8 @@ import {
 import {
   FiArrowLeft,
   FiCalendar,
-  FiDollarSign,
   FiMapPin,
   FiStar,
-  FiUsers,
 } from 'react-icons/fi';
 
 import Footer from '@/components/landing/Footer';
@@ -169,88 +167,21 @@ export default function HotelDetailPage() {
             <p className="text-gray-700 leading-relaxed text-lg">{hotel.description}</p>
           </div>
 
-          {/* Meeting Packages */}
+          {/* Book Now Section */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">Meeting Packages</h2>
-              
+            <div className="bg-gradient-to-br from-primary-600 to-secondary-600 rounded-xl shadow-xl p-8 md:p-12 text-white text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Book?</h2>
+              <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                Choose from available hotel rooms and meeting rooms. Select multiple rooms with our cinema-style booking interface.
+              </p>
               <Link
                 href={`/booking/multi?hotel_id=${hotel.id}`}
-                className="btn-primary flex items-center space-x-2"
+                className="inline-flex items-center space-x-3 bg-white text-primary-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg"
               >
-                <FiCalendar />
-                <span>📦 Book Multiple Rooms</span>
+                <FiCalendar size={24} />
+                <span>Book Now</span>
               </Link>
             </div>
-            
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-              <p className="text-blue-700">
-                <strong>💡 Tip:</strong> Butuh kombinasi beberapa tipe room? Gunakan <strong>Multi-Room Booking</strong> untuk pilih beberapa room sekaligus dengan harga otomatis terhitung!
-              </p>
-            </div>
-            
-            {roomTypes.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-md p-12 text-center">
-                <p className="text-gray-600 text-lg">No meeting packages available for this hotel.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {roomTypes.map((roomType) => (
-                  <div key={roomType.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
-                    {/* Package Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                          {roomType.name}
-                        </h3>
-                        <p className="text-gray-600">{roomType.description}</p>
-                      </div>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="border-t border-gray-200 my-4"></div>
-
-                    {/* Package Details */}
-                    <div className="space-y-3 mb-6">
-                      {/* Price */}
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                          <FiDollarSign className="text-green-600" size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Price per Person</p>
-                          <p className="text-xl font-bold text-gray-900">
-                            Rp {roomType.price_per_person.toLocaleString('id-ID')}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Capacity */}
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                          <FiUsers className="text-blue-600" size={20} />
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Capacity</p>
-                          <p className="text-lg font-semibold text-gray-900">
-                            {roomType.min_capacity} - {roomType.max_capacity} guests
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Book Button */}
-                    <Link
-                      href={`/booking?hotel_id=${hotel.id}&room_type_id=${roomType.id}`}
-                      className="w-full btn-primary flex items-center justify-center space-x-2"
-                    >
-                      <FiCalendar />
-                      <span>Book This Package</span>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Features */}

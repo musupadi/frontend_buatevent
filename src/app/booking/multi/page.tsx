@@ -42,10 +42,11 @@ interface RoomWithStatus {
   max_capacity: number
   price_per_person: number  // For hotel rooms
   room_category: string     // 'hotel_room' or 'meeting_room'
-  pricing_type: string      // 'per_night', 'per_hour', 'half_day', 'full_day'
+  pricing_type: string      // 'per_night', 'half_day', 'full_day', 'full_board'
   hourly_rate?: number
   half_day_rate?: number
   full_day_rate?: number
+  full_board_rate?: number
   is_available: boolean
   is_booked: boolean
   layout_x?: number
@@ -82,7 +83,7 @@ export default function MultiBookingPage() {
   const [bookingDate, setBookingDate] = useState(''); // For meeting rooms (single date)
   const [startTime, setStartTime] = useState(''); // For meeting rooms
   const [endTime, setEndTime] = useState(''); // For meeting rooms
-  const [selectedPackage, setSelectedPackage] = useState<'hourly' | 'half_day' | 'full_day'>('hourly'); // For meeting rooms
+  const [selectedPackage, setSelectedPackage] = useState<'half_day' | 'full_day' | 'full_board'>('half_day'); // For meeting rooms
   const [bookingMode, setBookingMode] = useState<'hotel_room' | 'meeting_room'>('hotel_room'); // NEW: Booking mode selector
   const [eventType, setEventType] = useState('');
   const [eventDescription, setEventDescription] = useState('');
@@ -94,6 +95,40 @@ export default function MultiBookingPage() {
   // Filters
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState<string>('');
+
+  // Auto-calculate end time based on start time and package
+  useEffect(() => {
+    if (startTime && selectedPackage) {
+      const [hours, minutes] = startTime.split(':').map(Number);
+      const startMinutes = hours * 60 + minutes;
+      
+      let durationMinutes = 0;
+      switch (selectedPackage) {
+        case 'half_day':
+          durationMinutes = 4 * 60; // 4 hours
+          break;
+        case 'full_day':
+          durationMinutes = 8 * 60; // 8 hours
+          break;
+        case 'full_board':
+          durationMinutes = 12 * 60; // 12 hours
+          break;
+      }
+      
+      let endMinutes = startMinutes + durationMinutes;
+      
+      // Max 22:00 (1320 minutes)
+      if (endMinutes > 22 * 60) {
+        endMinutes = 22 * 60;
+      }
+      
+      const endHours = Math.floor(endMinutes / 60);
+      const endMins = endMinutes % 60;
+      const calculatedEndTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`;
+      
+      setEndTime(calculatedEndTime);
+    }
+  }, [startTime, selectedPackage]);
 
   useEffect(() => {
     if (!hotelId) {
@@ -217,9 +252,9 @@ export default function MultiBookingPage() {
       const roomData = rooms.find(r => r.id === room.roomId);
       if (roomData?.room_category === 'meeting_room') {
         // Use package-specific price for meeting rooms
-        if (selectedPackage === 'hourly' && roomData.hourly_rate) return sum + roomData.hourly_rate;
         if (selectedPackage === 'half_day' && roomData.half_day_rate) return sum + roomData.half_day_rate;
         if (selectedPackage === 'full_day' && roomData.full_day_rate) return sum + roomData.full_day_rate;
+        if (selectedPackage === 'full_board' && roomData.full_board_rate) return sum + roomData.full_board_rate;
       }
       return sum + room.pricePerRoom;
     }, 0);
@@ -238,14 +273,14 @@ export default function MultiBookingPage() {
   };
 
   // Get display price for room based on category and package
-  const getRoomPrice = (room: RoomWithStatus, packageType?: 'hourly' | 'half_day' | 'full_day'): number => {
+  const getRoomPrice = (room: RoomWithStatus, packageType?: 'half_day' | 'full_day' | 'full_board'): number => {
     if (room.room_category === 'meeting_room') {
       // For meeting rooms, return price based on package
-      if (packageType === 'hourly' && room.hourly_rate) return room.hourly_rate;
       if (packageType === 'half_day' && room.half_day_rate) return room.half_day_rate;
       if (packageType === 'full_day' && room.full_day_rate) return room.full_day_rate;
-      // Default to hourly rate
-      return room.hourly_rate || room.half_day_rate || room.full_day_rate || 0;
+      if (packageType === 'full_board' && room.full_board_rate) return room.full_board_rate;
+      // Default to half_day rate
+      return room.half_day_rate || room.full_day_rate || room.full_board_rate || 0;
     } else {
       // For hotel rooms, use price per person
       return room.price_per_person || 0;
@@ -255,9 +290,9 @@ export default function MultiBookingPage() {
   // Get price label
   const getPriceLabel = (room: RoomWithStatus): string => {
     if (room.room_category === 'meeting_room') {
-      if (room.pricing_type === 'per_hour') return '/hour';
       if (room.pricing_type === 'half_day') return '/half-day';
       if (room.pricing_type === 'full_day') return '/full-day';
+      if (room.pricing_type === 'full_board') return '/full-board';
       return '/session';
     }
     return '/room';
@@ -493,13 +528,10 @@ export default function MultiBookingPage() {
               <FiArrowLeft />
               <span>Kembali</span>
             </button>
-            
+            <br></br>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              🎬 Cinema-Style Room Booking
-            </h1>
-            <p className="text-xl text-gray-600">
               {hotel.name} • {hotel.city}
-            </p>
+            </h1>
             <p className="text-sm text-gray-500 mt-2">
               Pilih room yang tersedia seperti memilih kursi bioskop! Room yang sudah dibooking tetap terlihat tapi tidak bisa dipilih.
             </p>
@@ -835,9 +867,9 @@ export default function MultiBookingPage() {
                               </p>
                               {isMeetingRoom && (
                                 <p className="text-xs text-green-600 font-semibold mt-1">
-                                  {selectedPackage === 'hourly' && roomData?.hourly_rate && `Rp ${roomData.hourly_rate.toLocaleString('id-ID')}/jam`}
                                   {selectedPackage === 'half_day' && roomData?.half_day_rate && `Rp ${roomData.half_day_rate.toLocaleString('id-ID')}/half-day`}
                                   {selectedPackage === 'full_day' && roomData?.full_day_rate && `Rp ${roomData.full_day_rate.toLocaleString('id-ID')}/full-day`}
+                                  {selectedPackage === 'full_board' && roomData?.full_board_rate && `Rp ${roomData.full_board_rate.toLocaleString('id-ID')}/full-board`}
                                 </p>
                               )}
                               {!isMeetingRoom && (
@@ -871,85 +903,104 @@ export default function MultiBookingPage() {
                               </div>
                               
                               {/* Package Selector */}
-                              <div className="flex gap-1 mb-2">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedPackage('hourly');
-                                    // Reset times for manual input
-                                    setStartTime('');
-                                    setEndTime('');
-                                  }}
-                                  className={`flex-1 px-2 py-1 rounded text-xs font-medium ${
-                                    selectedPackage === 'hourly'
-                                      ? 'bg-purple-500 text-white'
-                                      : 'bg-gray-200 text-gray-700'
-                                  }`}
-                                >
-                                  Hourly
-                                </button>
+                              <div className="space-y-2 mb-2">
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setSelectedPackage('half_day');
-                                    // Auto set half day hours (08:00-13:00)
-                                    setStartTime('08:00');
-                                    setEndTime('13:00');
+                                    if (!startTime) setStartTime('08:00');
                                   }}
-                                  className={`flex-1 px-2 py-1 rounded text-xs font-medium ${
+                                  className={`w-full px-3 py-2 rounded-lg text-xs font-medium text-left ${
                                     selectedPackage === 'half_day'
                                       ? 'bg-purple-500 text-white'
-                                      : 'bg-gray-200 text-gray-700'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                   }`}
                                 >
-                                  Half Day
+                                  <div className="font-bold">☕ Half Day (4 jam)</div>
+                                  <div className="text-xs opacity-90">1x Coffee Break</div>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => {
                                     setSelectedPackage('full_day');
-                                    // Auto set full day hours (08:00-17:00)
-                                    setStartTime('08:00');
-                                    setEndTime('17:00');
+                                    if (!startTime) setStartTime('08:00');
                                   }}
-                                  className={`flex-1 px-2 py-1 rounded text-xs font-medium ${
+                                  className={`w-full px-3 py-2 rounded-lg text-xs font-medium text-left ${
                                     selectedPackage === 'full_day'
                                       ? 'bg-purple-500 text-white'
-                                      : 'bg-gray-200 text-gray-700'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                   }`}
                                 >
-                                  Full Day
+                                  <div className="font-bold">☕🍽️ Full Day (8 jam)</div>
+                                  <div className="text-xs opacity-90">2x Coffee Break + 1x Meals</div>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedPackage('full_board');
+                                    if (!startTime) setStartTime('08:00');
+                                  }}
+                                  className={`w-full px-3 py-2 rounded-lg text-xs font-medium text-left ${
+                                    selectedPackage === 'full_board'
+                                      ? 'bg-purple-500 text-white'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  <div className="font-bold">☕🍽️🍽️ Full Board (12 jam)</div>
+                                  <div className="text-xs opacity-90">2x Coffee Break + 2x Meals</div>
                                 </button>
                               </div>
                               
-                              {/* Time Inputs - Only show for Hourly */}
-                              {selectedPackage === 'hourly' ? (
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <label className="text-xs text-gray-600 block mb-1">⏰ Jam Mulai</label>
-                                    <input
-                                      type="time"
-                                      value={startTime}
-                                      onChange={(e) => setStartTime(e.target.value)}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs text-gray-600 block mb-1">⏰ Jam Selesai</label>
-                                    <input
-                                      type="time"
-                                      value={endTime}
-                                      onChange={(e) => setEndTime(e.target.value)}
-                                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                                    />
-                                  </div>
+                              {/* Time Selection with max 22:00 */}
+                              <div className="grid grid-cols-2 gap-2 mb-2">
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">⏰ Jam Mulai</label>
+                                  <input
+                                    type="time"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
+                                    max="22:00"
+                                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                                  />
                                 </div>
-                              ) : (
-                                <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                                  {selectedPackage === 'half_day' && '⏰ Jam: 08:00 - 13:00 (5 jam)'}
-                                  {selectedPackage === 'full_day' && '⏰ Jam: 08:00 - 17:00 (9 jam)'}
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">⏰ Jam Selesai (Auto)</label>
+                                  <input
+                                    type="time"
+                                    value={endTime}
+                                    disabled
+                                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-gray-100 cursor-not-allowed"
+                                  />
                                 </div>
-                              )}
+                              </div>
+                              {/* Package Info */}
+                              <div className="text-xs bg-purple-50 border border-purple-200 rounded p-2">
+                                {selectedPackage === 'half_day' && (
+                                  <div>
+                                    <div className="font-semibold text-purple-700">📋 Half Day Package (4 jam)</div>
+                                    <div className="text-gray-600 mt-1">• 1x Coffee Break</div>
+                                  </div>
+                                )}
+                                {selectedPackage === 'full_day' && (
+                                  <div>
+                                    <div className="font-semibold text-purple-700">📋 Full Day Package (8 jam)</div>
+                                    <div className="text-gray-600 mt-1">• 2x Coffee Break</div>
+                                    <div className="text-gray-600">• 1x Meals</div>
+                                  </div>
+                                )}
+                                {selectedPackage === 'full_board' && (
+                                  <div>
+                                    <div className="font-semibold text-purple-700">📋 Full Board Package (12 jam)</div>
+                                    <div className="text-gray-600 mt-1">• 2x Coffee Break</div>
+                                    <div className="text-gray-600">• 2x Meals</div>
+                                  </div>
+                                )}
+                                {startTime && endTime && (
+                                  <div className="mt-2 pt-2 border-t border-purple-200 text-purple-700 font-semibold">
+                                    ⏰ {startTime} - {endTime}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
 
@@ -976,9 +1027,9 @@ export default function MultiBookingPage() {
                             <p className="text-xs text-gray-600">Subtotal:</p>
                             <p className="text-sm font-bold text-primary-600">
                               Rp {(isMeetingRoom 
-                                ? (selectedPackage === 'hourly' && roomData?.hourly_rate) ||
-                                  (selectedPackage === 'half_day' && roomData?.half_day_rate) ||
+                                ? (selectedPackage === 'half_day' && roomData?.half_day_rate) ||
                                   (selectedPackage === 'full_day' && roomData?.full_day_rate) ||
+                                  (selectedPackage === 'full_board' && roomData?.full_board_rate) ||
                                   room.pricePerRoom
                                 : room.pricePerRoom
                               ).toLocaleString('id-ID')}
